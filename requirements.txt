@@ -8,3 +8,4 @@ tzdata
 pandas
 numpy
 matplotlib
+seaborn
