@@ -1,0 +1,70 @@
+{% extends 'kakeibo/base.html' %}
+
+{% block content %}
+<div class="row">
+    <!-- 追加フォーム -->
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">カテゴリを追加</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-outline-primary">追加する</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- カテゴリ一覧 -->
+    <div class="col-md-8">
+        <!-- 収入カテゴリ -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">収入カテゴリ</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for cat in income_categories %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ cat.name }}
+                    <a href="{% url 'kakeibo:category_delete' cat.pk %}" class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('削除しますか？')">削除</a>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">カテゴリがありません</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <!-- 支出カテゴリ -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">支出カテゴリ</h5>
+            </div>
+            <ul class="list-group list-group-flush">
+                {% for cat in expense_categories %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ cat.name }}
+                    <a href="{% url 'kakeibo:category_delete' cat.pk %}" class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('削除しますか？')">削除</a>
+                </li>
+                {% empty %}
+                <li class="list-group-item text-muted">カテゴリがありません</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

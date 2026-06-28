@@ -1,0 +1,71 @@
+{% extends 'kakeibo/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">収支を入力</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.date.label }}</label>
+                        {{ form.date }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.transaction_type.label }}</label>
+                        {{ form.transaction_type }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.category.label }}</label>
+                        {{ form.category }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.amount.label }}</label>
+                        {{ form.amount }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ form.memo.label }}</label>
+                        {{ form.memo }}
+                    </div>
+                    <div class="d-flex gap-2 mt-2">
+                        <button type="submit" class="btn btn-outline-primary w-100">保存する</button>
+                        <a href="{% url 'kakeibo:list' %}" class="btn btn-outline-secondary w-100">戻る</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ここから修正 ↓ -->
+<script>
+    function filterCategories(type, selectedId = null) {
+        const categorySelect = document.getElementById('id_category');
+        fetch(`/api/categories/?type=${type}`)
+            .then(res => res.json())
+            .then(data => {
+                categorySelect.innerHTML = '<option value="">---------</option>';
+                data.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.id;
+                    option.textContent = cat.name;
+                    categorySelect.appendChild(option);
+                });
+            });
+    }
+
+    const typeSelect = document.getElementById('id_transaction_type');
+
+    // ページ読み込み時に初期絞り込み
+    filterCategories(typeSelect.value);
+
+    // 種別が変わったら再絞り込み
+    typeSelect.addEventListener('change', function () {
+        filterCategories(this.value);
+    });
+</script>
+<!-- ここまで修正 ↑ -->
+{% endblock %}

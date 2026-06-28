@@ -1,0 +1,65 @@
+{% extends 'kakeibo/base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">収支を編集</h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-outline-warning w-100">更新する</button>
+                        <a href="{% url 'kakeibo:list' %}" class="btn btn-outline-secondary w-100">キャンセル</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ここから追加 ↓ -->
+<script>
+    const currentCategoryId = "{{ transaction.category.id }}";  // 現在選択中のカテゴリID
+
+    function filterCategories(type, selectedId = null) {
+        const categorySelect = document.getElementById('id_category');
+        fetch(`/api/categories/?type=${type}`)
+            .then(res => res.json())
+            .then(data => {
+                categorySelect.innerHTML = '<option value="">---------</option>';
+                data.forEach(cat => {
+                    const option = document.createElement('option');
+                    option.value = cat.id;
+                    option.textContent = cat.name;
+                    if (String(cat.id) === String(selectedId)) {
+                        option.selected = true;  // 既存の値を選択状態にする
+                    }
+                    categorySelect.appendChild(option);
+                });
+            });
+    }
+
+    // ページ読み込み時に現在の種別で絞り込む
+    const typeSelect = document.getElementById('id_transaction_type');
+    filterCategories(typeSelect.value, currentCategoryId);
+
+    // 種別が変わったらカテゴリを再絞り込み
+    typeSelect.addEventListener('change', function () {
+        filterCategories(this.value);
+    });
+</script>
+<!-- ここまで追加 ↑ -->
+
+{% endblock %}
