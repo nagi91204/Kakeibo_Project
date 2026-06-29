@@ -1,0 +1,133 @@
+{% extends 'kakeibo/base.html' %}
+
+{% block content %}
+
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+    <div>
+        <h4 class="page-title mb-1">絞り込み</h4>
+        <div class="text-muted small">収入・支出に応じてカテゴリ候補が切り替わります</div>
+    </div>
+    <a href="{% url 'kakeibo:list' %}" class="btn btn-outline-secondary btn-sm">一覧へ戻る</a>
+</div>
+
+<form method="get" class="card shadow-sm mb-4">
+    <div class="card-body p-3 p-md-4">
+        <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-bold">月</label>
+                <select name="month" class="form-select">
+                    <option value="">すべて</option>
+                    {% for m in months %}
+                    <option value="{{ m.value }}" {% if m.selected %}selected{% endif %}>{{ m.value }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-bold">種別</label>
+                <select name="transaction_type" id="filter_transaction_type" class="form-select">
+                    <option value="">すべて</option>
+                    {% for t in types %}
+                    <option value="{{ t.value }}" {% if t.selected %}selected{% endif %}>{{ t.label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-bold">カテゴリ</label>
+                <select name="category" id="filter_category" class="form-select">
+                    <option value="">すべて</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if cat.selected %}selected{% endif %}>{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-3">
+                <label class="form-label fw-bold">支払い方法</label>
+                <select name="payment_method" class="form-select">
+                    <option value="">すべて</option>
+                    {% for method in payment_methods %}
+                    <option value="{{ method.id }}" {% if method.selected %}selected{% endif %}>{{ method.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-12 col-md-3 d-grid gap-2 mobile-stack">
+                <button type="submit" class="btn btn-primary btn-sm">絞り込む</button>
+                <a href="{% url 'kakeibo:filter' %}" class="btn btn-outline-secondary btn-sm">リセット</a>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle app-table">
+                <thead class="table-primary">
+                    <tr>
+                        <th>日付</th>
+                        <th>種別</th>
+                        <th>カテゴリ</th>
+                        <th class="d-none d-md-table-cell">支払い方法</th>
+                        <th class="text-end">金額（円）</th>
+                        <th class="d-none d-md-table-cell">メモ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for t in transactions %}
+                    <tr>
+                        <td class="text-nowrap">{{ t.date }}</td>
+                        <td>
+                            {% if t.transaction_type == 'income' %}
+                            <span class="badge bg-success">収入</span>
+                            {% else %}
+                            <span class="badge bg-danger">支出</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-nowrap">{{ t.category }}</td>
+                        <td class="d-none d-md-table-cell text-nowrap">{{ t.payment_method|default:"未設定" }}</td>
+                        <td class="text-end fw-bold
+                        {% if t.transaction_type == 'income' %}text-success{% else %}text-danger{% endif %}">
+                            {{ t.amount_formatted }}円
+                        </td>
+                        <td class="d-none d-md-table-cell">{{ t.memo }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted py-4">データがありません</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+    const transactionTypeSelect = document.getElementById('filter_transaction_type');
+    const categorySelect = document.getElementById('filter_category');
+
+    function loadCategories(type, selectedId = null) {
+        fetch(`/api/categories/?type=${encodeURIComponent(type)}`)
+            .then(response => response.json())
+            .then(data => {
+                categorySelect.innerHTML = '<option value="">すべて</option>';
+                data.forEach(category => {
+                    const option = document.createElement('option');
+                    option.value = category.id;
+                    option.textContent = category.name;
+                    if (String(category.id) === String(selectedId)) {
+                        option.selected = true;
+                    }
+                    categorySelect.appendChild(option);
+                });
+            });
+    }
+
+    loadCategories(transactionTypeSelect.value, '{{ selected_category }}');
+
+    transactionTypeSelect.addEventListener('change', function () {
+        loadCategories(this.value);
+    });
+</script>
+
+{% endblock %}

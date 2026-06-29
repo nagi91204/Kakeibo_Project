@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.list_view, name='home'),
     path('add/', views.add_view, name='add'),
     path('list/', views.list_view, name='list'),
+    path('filter/', views.filter_view, name='filter'),
     path('edit/<int:pk>/', views.edit_view, name='edit'),
     path('delete/<int:pk>/', views.delete_view, name='delete'),
     path('chart/', views.chart_view, name='chart'),

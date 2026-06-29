@@ -30,50 +30,18 @@
     </div>
 </div>
 
-<form method="get" class="card shadow-sm mb-4">
-    <div class="card-body p-3 p-md-4">
-        <div class="row g-2 align-items-end">
-            <div class="col-12 col-md-3">
-                <label class="form-label">月</label>
-                <select name="month" class="form-select">
-                    <option value="">すべて</option>
-                    {% for m in months %}
-                    <option value="{{ m.value }}" {% if m.selected %}selected{% endif %}>{{ m.value }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-12 col-md-3">
-                <label class="form-label fw-bold">種別</label>
-                <select name="transaction_type" class="form-select">
-                    <option value="">すべて</option>
-                    {% for t in types %}
-                    <option value="{{ t.value }}" {% if t.selected %}selected{% endif %}>{{ t.label }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-12 col-md-3">
-                <label class="form-label fw-bold">カテゴリ</label>
-                <select name="category" class="form-select">
-                    <option value="">すべて</option>
-                    {% for cat in categories %}
-                    <option value="{{ cat.id }}" {% if cat.selected %}selected{% endif %}>{{ cat.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div class="col-12 col-md-3 d-grid gap-2 mobile-stack">
-                <button type="submit" class="btn btn-outline-primary w-100">絞り込む</button>
-                <a href="{% url 'kakeibo:list' %}" class="btn btn-outline-secondary w-100">リセット</a>
-            </div>
-        </div>
-    </div>
-</form>
-
 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
     <h4 class="page-title mb-0">収支一覧</h4>
-    <div class="d-grid gap-2 d-md-flex mobile-actions">
-        <a href="{% url 'kakeibo:add' %}" class="btn btn-outline-primary">+ 収支入力</a>
-        <a href="{% url 'kakeibo:chart' %}" class="btn btn-outline-info">グラフ</a>
-        <a href="{% url 'kakeibo:category' %}" class="btn btn-outline-secondary">カテゴリ管理</a>
+    <div class="d-flex flex-row flex-nowrap gap-2 overflow-auto pb-1 list-action-row">
+        <a href="{% url 'kakeibo:filter' %}"
+            class="btn btn-outline-primary btn-sm flex-shrink-0 px-3 py-2 d-inline-flex align-items-center justify-content-center text-center">絞り込み</a>
+        <a href="{% url 'kakeibo:add' %}"
+            class="btn btn-outline-primary btn-sm flex-shrink-0 px-3 py-2 d-inline-flex align-items-center justify-content-center text-center">+
+            収支入力</a>
+        <a href="{% url 'kakeibo:chart' %}"
+            class="btn btn-outline-info btn-sm flex-shrink-0 px-3 py-2 d-inline-flex align-items-center justify-content-center text-center">グラフ</a>
+        <a href="{% url 'kakeibo:category' %}"
+            class="btn btn-outline-secondary btn-sm flex-shrink-0 px-3 py-2 d-inline-flex align-items-center justify-content-center text-center">カテゴリ管理</a>
     </div>
 </div>
 
@@ -111,9 +79,11 @@
                         </td>
                         <td class="d-none d-md-table-cell">{{ t.memo }}</td>
                         <td class="text-center">
-                            <div class="d-grid gap-2 d-md-flex justify-content-md-center mobile-actions">
-                                <a href="{% url 'kakeibo:edit' t.pk %}" class="btn btn-sm btn-outline-primary">編集</a>
-                                <a href="{% url 'kakeibo:delete' t.pk %}" class="btn btn-sm btn-outline-danger">削除</a>
+                            <div class="d-flex flex-row flex-nowrap gap-2 justify-content-center overflow-auto">
+                                <a href="{% url 'kakeibo:edit' t.pk %}"
+                                    class="btn btn-sm btn-outline-primary flex-shrink-0 px-3 py-1 d-inline-flex align-items-center justify-content-center text-center">編集</a>
+                                <a href="{% url 'kakeibo:delete' t.pk %}"
+                                    class="btn btn-sm btn-outline-danger flex-shrink-0 px-3 py-1 d-inline-flex align-items-center justify-content-center text-center">削除</a>
                             </div>
                         </td>
                     </tr>

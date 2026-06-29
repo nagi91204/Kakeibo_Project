@@ -56,6 +56,9 @@
             align-items: center;
             justify-content: center;
             font-weight: 700;
+            line-height: 1;
+            padding: 0.75rem 1rem;
+            text-align: center;
         }
 
         .app-nav-button-outline {
@@ -137,6 +140,7 @@
 </head>
 
 <body>
+    {% with current_page=request.resolver_match.url_name|default:'' %}
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary py-3">
         <div class="container app-shell">
@@ -146,10 +150,21 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="d-none d-lg-flex ms-auto align-items-center gap-2">
+                {% if current_page != 'home' and current_page != 'list' %}
                 <a class="btn btn-outline-light btn-sm app-nav-button" href="{% url 'kakeibo:list' %}">一覧</a>
+                {% endif %}
+                {% if current_page != 'filter' %}
+                <a class="btn btn-outline-light btn-sm app-nav-button" href="{% url 'kakeibo:filter' %}">絞り込み</a>
+                {% endif %}
+                {% if current_page != 'add' %}
                 <a class="btn btn-outline-light btn-sm app-nav-button" href="{% url 'kakeibo:add' %}">入力</a>
+                {% endif %}
+                {% if current_page != 'chart' %}
                 <a class="btn btn-outline-light btn-sm app-nav-button" href="{% url 'kakeibo:chart' %}">グラフ</a>
+                {% endif %}
+                {% if current_page != 'category' %}
                 <a class="btn btn-outline-light btn-sm app-nav-button" href="{% url 'kakeibo:category' %}">カテゴリ</a>
+                {% endif %}
                 <form method="post" action="{% url 'logout' %}" class="ms-2">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-light btn-sm app-nav-button px-3">ログアウト</button>
@@ -167,10 +182,21 @@
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="閉じる"></button>
         </div>
         <div class="offcanvas-body d-flex flex-column gap-2 p-3 p-sm-4">
+            {% if current_page != 'home' and current_page != 'list' %}
             <a class="btn app-nav-button-light w-100" href="{% url 'kakeibo:list' %}">一覧</a>
+            {% endif %}
+            {% if current_page != 'filter' %}
+            <a class="btn app-nav-button-light w-100" href="{% url 'kakeibo:filter' %}">絞り込み</a>
+            {% endif %}
+            {% if current_page != 'add' %}
             <a class="btn app-nav-button-light w-100" href="{% url 'kakeibo:add' %}">入力</a>
+            {% endif %}
+            {% if current_page != 'chart' %}
             <a class="btn app-nav-button-light w-100" href="{% url 'kakeibo:chart' %}">グラフ</a>
+            {% endif %}
+            {% if current_page != 'category' %}
             <a class="btn app-nav-button-light w-100" href="{% url 'kakeibo:category' %}">カテゴリ</a>
+            {% endif %}
             <form method="post" action="{% url 'logout' %}" class="pt-1">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary w-100 app-nav-button">ログアウト</button>
@@ -186,5 +212,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 </body>
+
+{% endwith %}
 
 </html>

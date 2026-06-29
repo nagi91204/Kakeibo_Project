@@ -14,6 +14,64 @@ import matplotlib.pyplot as plt  # noqa: E402
 plt.rcParams['font.family'] = 'Hiragino Sans'
 
 
+def build_transaction_filter_context(request):
+    transactions = Transaction.objects.select_related(
+        'category', 'payment_method')
+
+    selected_month = request.GET.get('month', '')
+    selected_type = request.GET.get('transaction_type', '')
+    selected_category = request.GET.get('category', '')
+    selected_payment_method = request.GET.get('payment_method', '')
+
+    if selected_month:
+        transactions = transactions.filter(
+            date__year=selected_month[:4], date__month=selected_month[5:])
+    if selected_type:
+        transactions = transactions.filter(transaction_type=selected_type)
+    if selected_category and selected_category.isdigit():
+        transactions = transactions.filter(category_id=selected_category)
+    if selected_payment_method and selected_payment_method.isdigit():
+        transactions = transactions.filter(
+            payment_method_id=selected_payment_method)
+
+    all_months = Transaction.objects.dates('date', 'month', order='DESC')
+    months = [m.strftime('%Y-%m') for m in all_months]
+    months_with_flag = [
+        {'value': m, 'selected': m == selected_month} for m in months]
+
+    if selected_type in ['income', 'expense']:
+        categories = Category.objects.filter(transaction_type=selected_type)
+    else:
+        categories = Category.objects.all()
+
+    categories_with_flag = [{'id': cat.id, 'name': cat.name, 'selected': str(
+        cat.id) == selected_category} for cat in categories]
+
+    payment_methods = PaymentMethod.objects.all()
+    payment_methods_with_flag = [{
+        'id': method.id,
+        'name': method.name,
+        'selected': str(method.id) == selected_payment_method,
+    } for method in payment_methods]
+
+    types_with_flag = [
+        {'value': 'income', 'label': '収入', 'selected': selected_type == 'income'},
+        {'value': 'expense', 'label': '支出', 'selected': selected_type == 'expense'},
+    ]
+
+    return {
+        'transactions': transactions,
+        'months': months_with_flag,
+        'selected_month': selected_month,
+        'selected_type': selected_type,
+        'selected_category': selected_category,
+        'selected_payment_method': selected_payment_method,
+        'categories': categories_with_flag,
+        'payment_methods': payment_methods_with_flag,
+        'types': types_with_flag,
+    }
+
+
 @login_required
 def add_view(request):
     if request.method == 'POST':
@@ -29,19 +87,8 @@ def add_view(request):
 
 @login_required
 def list_view(request):
-    transactions = Transaction.objects.all()
-
-    selected_month = request.GET.get('month', '')
-    selected_type = request.GET.get('transaction_type', '')
-    selected_category = request.GET.get('category', '')
-
-    if selected_month:
-        transactions = transactions.filter(
-            date__year=selected_month[:4], date__month=selected_month[5:])
-    if selected_type:
-        transactions = transactions.filter(transaction_type=selected_type)
-    if selected_category and selected_category.isdigit():
-        transactions = transactions.filter(category_id=selected_category)
+    context = build_transaction_filter_context(request)
+    transactions = context['transactions']
 
     total_income = sum(
         t.amount for t in transactions if t.transaction_type == 'income')
@@ -52,33 +99,35 @@ def list_view(request):
     for t in transactions:
         t.amount_formatted = f'{t.amount:,}'
 
-    all_months = Transaction.objects.dates('date', 'month', order='DESC')
-    months = [m.strftime('%Y-%m') for m in all_months]
-    months_with_flag = [
-        {'value': m, 'selected': m == selected_month} for m in months]
-    categories = Category.objects.all()
-
-    categories_with_flag = [{'id': cat.id, 'name': cat.name, 'selected': str(
-        cat.id) == selected_category} for cat in categories]
-
-    types_with_flag = [
-        {'value': 'income', 'label': '収入', 'selected': selected_type == 'income'},
-        {'value': 'expense', 'label': '支出', 'selected': selected_type == 'expense'},
-    ]
-
     return render(request, 'kakeibo/list.html', {
         'transactions': transactions,
         'total_income': f'{total_income:,}',
         'total_expense': f'{total_expense:,}',
         'balance': f'{balance:,}',
         'balance_sign': balance >= 0,
-        'months': months_with_flag,
-        'selected_month': selected_month,
-        'selected_type': selected_type,
-        'selected_category': selected_category,
-        'categories': categories_with_flag,
-        'types': types_with_flag
+        'types': context['types'],
 
+    })
+
+
+@login_required
+def filter_view(request):
+    context = build_transaction_filter_context(request)
+    transactions = context['transactions']
+
+    for t in transactions:
+        t.amount_formatted = f'{t.amount:,}'
+
+    return render(request, 'kakeibo/filter.html', {
+        'transactions': transactions,
+        'months': context['months'],
+        'selected_month': context['selected_month'],
+        'selected_type': context['selected_type'],
+        'selected_category': context['selected_category'],
+        'selected_payment_method': context['selected_payment_method'],
+        'categories': context['categories'],
+        'payment_methods': context['payment_methods'],
+        'types': context['types'],
     })
 
 
@@ -225,6 +274,9 @@ def payment_method_delete(request, pk):
 # 種別に応じてカテゴリを絞り込むAPI
 def get_categories(request):
     transaction_type = request.GET.get('type', '')
-    categories = Category.objects.filter(
-        transaction_type=transaction_type).values('id', 'name')
+    if transaction_type in ['income', 'expense']:
+        categories = Category.objects.filter(
+            transaction_type=transaction_type).values('id', 'name')
+    else:
+        categories = Category.objects.all().values('id', 'name')
     return JsonResponse(list(categories), safe=False)
