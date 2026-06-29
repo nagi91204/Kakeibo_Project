@@ -1,18 +1,13 @@
-# kakeibo/views.py
 from django.contrib.auth.decorators import login_required
 import io
 import base64
+from matplotlib import pyplot as plt
 import pandas as pd
 from django import forms
 from .models import Transaction, Category, PaymentMethod
 from .forms import TransactionForm, CategoryForm, PaymentMethodForm
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-import seaborn as sns
-import matplotlib
-matplotlib.use('Agg')  # noqa: E402
-import matplotlib.pyplot as plt  # noqa: E402
-plt.rcParams['font.family'] = 'Hiragino Sans'
 
 
 def build_transaction_filter_context(request):
@@ -163,6 +158,19 @@ def delete_view(request, pk):
 
 @login_required
 def chart_view(request):
+    import matplotlib
+    matplotlib.use('Agg')
+    import seaborn as sns
+    plt.rcParams['font.family'] = 'Hiragino Sans'
+
+    def fig_to_base64(fig):
+        buf = io.BytesIO()
+        fig.savefig(buf, format='png', bbox_inches='tight')
+        buf.seek(0)
+        image = base64.b64encode(buf.read()).decode('utf-8')
+        plt.close(fig)
+        return image
+
     transactions = Transaction.objects.all()
 
     if not transactions:
@@ -213,7 +221,7 @@ def chart_view(request):
             'amount'].sum().reset_index()
         fig, ax = plt.subplots(figsize=(7, 4))
         sns.barplot(data=cat_summary, x='amount',
-                    y='category_name', ax=ax, palette='coolwarm')
+                    y='category_name', hue='category_name', legend=False, ax=ax, palette='coolwarm')
         ax.set_title('カテゴリ別支出金額')
         ax.set_xlabel('金額（円）')
         ax.set_ylabel('カテゴリ')
