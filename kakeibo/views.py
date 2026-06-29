@@ -107,6 +107,13 @@ def list_view(request):
         'balance': f'{balance:,}',
         'balance_sign': balance >= 0,
         'types': context['types'],
+        'months': context['months'],
+        'selected_month': context['selected_month'],
+        'selected_type': context['selected_type'],
+        'selected_category': context['selected_category'],
+        'selected_payment_method': context['selected_payment_method'],
+        'categories': context['categories'],
+        'payment_methods': context['payment_methods'],
 
     })
 
