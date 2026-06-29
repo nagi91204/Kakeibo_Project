@@ -3,32 +3,131 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <title>家計簿アプリ</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --app-bg: #f4f7fb;
+            --app-surface: rgba(255, 255, 255, 0.88);
+            --app-border: rgba(15, 23, 42, 0.08);
+            --app-shadow: 0 18px 45px rgba(15, 23, 42, 0.08);
+            --app-radius: 1.1rem;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at top left, rgba(13, 110, 253, 0.12), transparent 30%),
+                radial-gradient(circle at top right, rgba(25, 135, 84, 0.10), transparent 26%),
+                var(--app-bg);
+            min-height: 100vh;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .app-shell {
+            max-width: 1180px;
+        }
+
+        .app-card {
+            border: 1px solid var(--app-border);
+            border-radius: var(--app-radius);
+            box-shadow: var(--app-shadow);
+            overflow: hidden;
+        }
+
+        .app-panel {
+            background: var(--app-surface);
+            border: 1px solid var(--app-border);
+            border-radius: var(--app-radius);
+            box-shadow: var(--app-shadow);
+            backdrop-filter: blur(12px);
+        }
+
+        .app-table {
+            margin-bottom: 0;
+        }
+
+        .app-table thead th {
+            font-size: 0.9rem;
+            letter-spacing: 0.02em;
+        }
+
+        .btn {
+            border-radius: 0.9rem;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 0.9rem;
+            min-height: 48px;
+        }
+
+        @media (max-width: 767.98px) {
+            .app-shell {
+                padding-left: 0.8rem;
+                padding-right: 0.8rem;
+            }
+
+            .page-title {
+                font-size: 1.15rem;
+            }
+
+            .btn,
+            .form-control,
+            .form-select {
+                min-height: 50px;
+            }
+
+            .mobile-stack .btn {
+                width: 100%;
+            }
+
+            .mobile-actions .btn,
+            .mobile-actions form {
+                width: 100%;
+            }
+
+            .mobile-actions .btn+.btn,
+            .mobile-actions .btn+form,
+            .mobile-actions form+.btn,
+            .mobile-actions form+form {
+                margin-top: 0.5rem;
+            }
+        }
+    </style>
 
 </head>
 
 <body>
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container">
-            <!-- 既存 -->
-            <a class="navbar-brand" href="{% url 'kakeibo:home' %}">家計簿アプリ</a>
-            <div class="navbar-nav ms-auto">
-                <form method="post" action="{% url 'logout' %}">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-light btn-sm">ログアウト</button>
-                </form>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary py-3">
+        <div class="container app-shell">
+            <a class="navbar-brand fw-bold" href="{% url 'kakeibo:home' %}">家計簿アプリ</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                aria-controls="mainNav" aria-expanded="false" aria-label="ナビゲーション切り替え">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <div class="navbar-nav ms-auto align-items-lg-center gap-2 mt-3 mt-lg-0">
+                    <a class="nav-link text-white-50" href="{% url 'kakeibo:list' %}">一覧</a>
+                    <a class="nav-link text-white-50" href="{% url 'kakeibo:add' %}">入力</a>
+                    <a class="nav-link text-white-50" href="{% url 'kakeibo:chart' %}">グラフ</a>
+                    <a class="nav-link text-white-50" href="{% url 'kakeibo:category' %}">カテゴリ</a>
+                    <form method="post" action="{% url 'logout' %}" class="ms-lg-2">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-light btn-sm px-3 w-100">ログアウト</button>
+                    </form>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container mt-4">
+    <main class="container app-shell py-3 py-md-4">
         {% block content %}
         {% endblock %}
-    </div>
+    </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

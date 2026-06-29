@@ -2,21 +2,21 @@
 
 {% block content %}
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h4>グラフ</h4>
-    <a href="{% url 'kakeibo:list' %}" class="btn btn-outline-secondary">＜ー 一覧に戻る</a>
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-3">
+    <h4 class="page-title mb-0">グラフ</h4>
+    <a href="{% url 'kakeibo:list' %}" class="btn btn-outline-secondary">一覧に戻る</a>
 </div>
 
 {% if error %}
 <div class="alert alert-warning">{{ error }}</div>
 {% else %}
 
-<div class="row mb-4">
-    {% if charset.bar %}
-    <div class="col12- mb-4">
-        <div class="card shadow-sm">
+<div class="row g-4 mb-4">
+    {% if charts.bar %}
+    <div class="col-12">
+        <div class="card app-card">
             <div class="card-header bg-primary text-white">月別収支</div>
-            <div class="card-body text-center">
+            <div class="card-body text-center p-3 p-md-4">
                 <img src="data:image/png;base64,{{ charts.bar }}" class="img-fluid">
             </div>
         </div>
@@ -24,22 +24,22 @@
     {% endif %}
 
     {% if charts.pie %}
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm">
+    <div class="col-12 col-lg-6">
+        <div class="card app-card">
             <div class="card-header bg-danger text-white">支出カテゴリ別割合</div>
-            <div class="card-body text-center">
-                <img src="data:image/png;base64, {{ charts.pie }}" class="img-fluid">
+            <div class="card-body text-center p-3 p-md-4">
+                <img src="data:image/png;base64,{{ charts.pie }}" class="img-fluid">
             </div>
         </div>
     </div>
     {% endif %}
 
     {% if charts.hbar %}
-    <div class="col-md-6 mb-4">
-        <div class="card shadow-sm">
+    <div class="col-12 col-lg-6">
+        <div class="card app-card">
             <div class="card-header bg-warning text-dark">カテゴリ別支出金額</div>
-            <div class="card-body text-center">
-                <img src="data:image/png;base64, {{ charts.hbar }}" class="img-fluid">
+            <div class="card-body text-center p-3 p-md-4">
+                <img src="data:image/png;base64,{{ charts.hbar }}" class="img-fluid">
             </div>
         </div>
     </div>
