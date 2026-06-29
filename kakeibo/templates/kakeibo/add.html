@@ -22,7 +22,7 @@
                         <label class="form-label fw-bold">{{ form.category.label }}</label>
                         {{ form.category }}
                     </div>
-                    <div>
+                    <div id="payment-method-row">
                         <label class="form-label fw-bold">{{ form.payment_method.label }}</label>
                         {{ form.payment_method }}
                     </div>
@@ -34,9 +34,11 @@
                         <label class="form-label fw-bold">{{ form.memo.label }}</label>
                         {{ form.memo }}
                     </div>
-                    <div class="d-grid gap-2 d-md-flex mt-1 mobile-actions">
-                        <button type="submit" class="btn btn-outline-primary w-100">保存する</button>
-                        <a href="{% url 'kakeibo:list' %}" class="btn btn-outline-secondary w-100">戻る</a>
+                    <div class="d-grid gap-2 d-md-flex justify-content-center">
+                        <button type="submit"
+                            class="btn btn-outline-primary w-100 d-inline-flex align-items-center justify-content-center">保存する</button>
+                        <a href="{% url 'kakeibo:list' %}"
+                            class="btn btn-outline-secondary w-100 d-inline-flex align-items-center justify-content-center">戻る</a>
                     </div>
                 </form>
             </div>
@@ -45,8 +47,25 @@
 </div>
 
 <script>
-    function filterCategories(type, selectedId = null) {
-        const categorySelect = document.getElementById('id_category');
+    const typeSelect = document.getElementById('id_transaction_type');
+    const categorySelect = document.getElementById('id_category');
+    const paymentMethodRow = document.getElementById('payment-method-row');
+    const paymentMethodSelect = document.getElementById('id_payment_method');
+
+    function setPaymentMethodVisibility(type) {
+        if (type === 'income') {
+            paymentMethodRow.style.display = 'none';
+            paymentMethodSelect.disabled = true;
+            paymentMethodSelect.value = '';
+        } else {
+            paymentMethodRow.style.display = '';
+            paymentMethodSelect.disabled = false;
+        }
+    }
+
+    function filterCategories(type) {
+        setPaymentMethodVisibility(type);
+
         fetch(`/api/categories/?type=${encodeURIComponent(type)}`)
             .then(res => res.json())
             .then(data => {
@@ -60,14 +79,7 @@
             });
     }
 
-    const typeSelect = document.getElementById('id_transaction_type');
-    const paymentMethodSelect = document.getElementById('id_payment_method');
-
     filterCategories(typeSelect.value);
-
-    if (paymentMethodSelect) {
-        paymentMethodSelect.value = paymentMethodSelect.value;
-    }
 
     typeSelect.addEventListener('change', function () {
         filterCategories(this.value);

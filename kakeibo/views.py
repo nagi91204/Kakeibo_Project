@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 import io
 import base64
 import pandas as pd
+from django import forms
 from .models import Transaction, Category, PaymentMethod
 from .forms import TransactionForm, CategoryForm, PaymentMethodForm
 from django.http import JsonResponse
@@ -215,7 +216,6 @@ def chart_view(request):
     return render(request, 'kakeibo/chart.html', {'charts': charts})
 
 
-@login_required
 def fig_to_base64(fig):
     buf = io.BytesIO()
     fig.savefig(buf, format='png', bbox_inches='tight')
@@ -227,32 +227,94 @@ def fig_to_base64(fig):
 
 @login_required
 def category_view(request):
-    category_form = CategoryForm()
-    payment_method_form = PaymentMethodForm()
-
-    if request.method == 'POST':
-        form_type = request.POST.get('form_type')
-        if form_type == 'category':
-            category_form = CategoryForm(request.POST)
-            if category_form.is_valid():
-                category_form.save()
-                return redirect('kakeibo:category')
-        elif form_type == 'payment_method':
-            payment_method_form = PaymentMethodForm(request.POST)
-            if payment_method_form.is_valid():
-                payment_method_form.save()
-                return redirect('kakeibo:category')
-
     income_categories = Category.objects.filter(transaction_type='income')
     expense_categories = Category.objects.filter(transaction_type='expense')
     payment_methods = PaymentMethod.objects.all()
 
     return render(request, 'kakeibo/category.html', {
-        'category_form': category_form,
-        'payment_method_form': payment_method_form,
         'income_categories': income_categories,
         'expense_categories': expense_categories,
         'payment_methods': payment_methods,
+    })
+
+
+@login_required
+def category_create_view(request, transaction_type):
+    if transaction_type not in ['income', 'expense']:
+        return redirect('kakeibo:category')
+
+    if request.method == 'POST':
+        form = CategoryForm(request.POST)
+        if form.is_valid():
+            category = form.save(commit=False)
+            category.transaction_type = transaction_type
+            category.save()
+            return redirect('kakeibo:category')
+    else:
+        form = CategoryForm(initial={'transaction_type': transaction_type})
+        form.fields['transaction_type'].widget = forms.HiddenInput()
+
+    return render(request, 'kakeibo/form_page.html', {
+        'form': form,
+        'title': '収入カテゴリを追加' if transaction_type == 'income' else '支出カテゴリを追加',
+        'submit_label': '追加する',
+        'back_url': 'kakeibo:category',
+    })
+
+
+@login_required
+def category_edit_view(request, pk):
+    category = get_object_or_404(Category, pk=pk)
+    if request.method == 'POST':
+        form = CategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            return redirect('kakeibo:category')
+    else:
+        form = CategoryForm(instance=category)
+
+    return render(request, 'kakeibo/form_page.html', {
+        'form': form,
+        'title': 'カテゴリを編集',
+        'submit_label': '更新する',
+        'back_url': 'kakeibo:category',
+    })
+
+
+@login_required
+def payment_method_create_view(request):
+    if request.method == 'POST':
+        form = PaymentMethodForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('kakeibo:category')
+    else:
+        form = PaymentMethodForm()
+
+    return render(request, 'kakeibo/form_page.html', {
+        'form': form,
+        'title': '支払い方法を追加',
+        'submit_label': '追加する',
+        'back_url': 'kakeibo:category',
+    })
+
+
+@login_required
+def payment_method_edit_view(request, pk):
+    payment_method = get_object_or_404(PaymentMethod, pk=pk)
+    if request.method == 'POST':
+        form = PaymentMethodForm(request.POST, instance=payment_method)
+        if form.is_valid():
+            form.save()
+            return redirect('kakeibo:category')
+    else:
+        form = PaymentMethodForm(instance=payment_method)
+
+    return render(request, 'kakeibo/form_page.html', {
+        'form': form,
+        'title': '支払い方法を編集',
+        'submit_label': '更新する',
+        'back_url': 'kakeibo:category',
     })
 
 

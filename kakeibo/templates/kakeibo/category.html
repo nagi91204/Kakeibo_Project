@@ -2,67 +2,24 @@
 
 {% block content %}
 <div class="row g-4">
-    <div class="col-12 col-xl-4">
-        <div class="card app-card mb-4">
-            <div class="card-header bg-primary text-white">
-                <h5 class="mb-0">カテゴリを追加</h5>
-            </div>
-            <div class="card-body p-3 p-md-4">
-                <form method="post" class="d-grid gap-3">
-                    {% csrf_token %}
-                    <input type="hidden" name="form_type" value="category">
-                    {% for field in category_form %}
-                    <div>
-                        <label class="form-label fw-bold">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                        <div class="text-danger small">{{ field.errors }}</div>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-outline-primary">追加する</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <div class="card app-card">
-            <div class="card-header bg-info text-white">
-                <h5 class="mb-0">支払い方法を追加</h5>
-            </div>
-            <div class="card-body p-3 p-md-4">
-                <form method="post" class="d-grid gap-3">
-                    {% csrf_token %}
-                    <input type="hidden" name="form_type" value="payment_method">
-                    {% for field in payment_method_form %}
-                    <div>
-                        <label class="form-label fw-bold">{{ field.label }}</label>
-                        {{ field }}
-                        {% if field.errors %}
-                        <div class="text-danger small">{{ field.errors }}</div>
-                        {% endif %}
-                    </div>
-                    {% endfor %}
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-outline-info">追加する</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <div class="col-12 col-xl-8">
         <div class="card app-card mb-4">
-            <div class="card-header bg-success text-white">
+            <div class="card-header bg-success text-white d-flex align-items-center justify-content-between gap-2">
                 <h5 class="mb-0">収入カテゴリ</h5>
+                <a href="{% url 'kakeibo:category_add' 'income' %}"
+                    class="btn btn-light btn-sm d-inline-flex align-items-center justify-content-center">追加</a>
             </div>
             <ul class="list-group list-group-flush">
                 {% for cat in income_categories %}
-                <li class="list-group-item d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                <li class="list-group-item d-flex justify-content-between align-items-center gap-2 flex-nowrap">
                     <span>{{ cat.name }}</span>
-                    <a href="{% url 'kakeibo:category_delete' cat.pk %}" class="btn btn-sm btn-outline-danger"
-                        onclick="return confirm('削除しますか？')">削除</a>
+                    <div class="d-flex flex-nowrap gap-2 flex-shrink-0">
+                        <a href="{% url 'kakeibo:category_edit' cat.pk %}"
+                            class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center">編集</a>
+                        <a href="{% url 'kakeibo:category_delete' cat.pk %}"
+                            class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center"
+                            onclick="return confirm('削除しますか？')">削除</a>
+                    </div>
                 </li>
                 {% empty %}
                 <li class="list-group-item text-muted">カテゴリがありません</li>
@@ -71,15 +28,22 @@
         </div>
 
         <div class="card app-card mb-4">
-            <div class="card-header bg-danger text-white">
+            <div class="card-header bg-danger text-white d-flex align-items-center justify-content-between gap-2">
                 <h5 class="mb-0">支出カテゴリ</h5>
+                <a href="{% url 'kakeibo:category_add' 'expense' %}"
+                    class="btn btn-light btn-sm d-inline-flex align-items-center justify-content-center">追加</a>
             </div>
             <ul class="list-group list-group-flush">
                 {% for cat in expense_categories %}
-                <li class="list-group-item d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                <li class="list-group-item d-flex justify-content-between align-items-center gap-2 flex-nowrap">
                     <span>{{ cat.name }}</span>
-                    <a href="{% url 'kakeibo:category_delete' cat.pk %}" class="btn btn-sm btn-outline-danger"
-                        onclick="return confirm('削除しますか？')">削除</a>
+                    <div class="d-flex flex-nowrap gap-2 flex-shrink-0">
+                        <a href="{% url 'kakeibo:category_edit' cat.pk %}"
+                            class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center">編集</a>
+                        <a href="{% url 'kakeibo:category_delete' cat.pk %}"
+                            class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center"
+                            onclick="return confirm('削除しますか？')">削除</a>
+                    </div>
                 </li>
                 {% empty %}
                 <li class="list-group-item text-muted">カテゴリがありません</li>
@@ -88,15 +52,22 @@
         </div>
 
         <div class="card app-card">
-            <div class="card-header bg-info text-white">
+            <div class="card-header bg-info text-white d-flex align-items-center justify-content-between gap-2">
                 <h5 class="mb-0">支払い方法</h5>
+                <a href="{% url 'kakeibo:payment_method_add' %}"
+                    class="btn btn-light btn-sm d-inline-flex align-items-center justify-content-center">追加</a>
             </div>
             <ul class="list-group list-group-flush">
                 {% for method in payment_methods %}
-                <li class="list-group-item d-flex justify-content-between align-items-center gap-2 flex-wrap">
+                <li class="list-group-item d-flex justify-content-between align-items-center gap-2 flex-nowrap">
                     <span>{{ method.name }}</span>
-                    <a href="{% url 'kakeibo:payment_method_delete' method.pk %}" class="btn btn-sm btn-outline-danger"
-                        onclick="return confirm('削除しますか？')">削除</a>
+                    <div class="d-flex flex-nowrap gap-2 flex-shrink-0">
+                        <a href="{% url 'kakeibo:payment_method_edit' method.pk %}"
+                            class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center">編集</a>
+                        <a href="{% url 'kakeibo:payment_method_delete' method.pk %}"
+                            class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center"
+                            onclick="return confirm('削除しますか？')">削除</a>
+                    </div>
                 </li>
                 {% empty %}
                 <li class="list-group-item text-muted">支払い方法がありません</li>
