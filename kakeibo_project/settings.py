@@ -29,7 +29,7 @@ ALLOWED_HOSTS.extend(
 # APPLICATIONS
 # =====================
 INSTALLED_APPS = [
-    'kakeibo',
+    'kakeibo.apps.KakeiboConfig',
 
     'django.contrib.admin',
     'django.contrib.auth',
