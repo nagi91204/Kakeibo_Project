@@ -15,11 +15,15 @@ SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-dev-key")
 
 DEBUG = os.getenv("DEBUG", "False").strip().lower() in ["true", "1", "yes"]
 
+raw_allowed_hosts = os.getenv("ALLOWED_HOSTS", "")
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
     ".onrender.com",
 ]
+ALLOWED_HOSTS.extend(
+    host.strip() for host in raw_allowed_hosts.split(",") if host.strip()
+)
 
 # =====================
 # APPLICATIONS
@@ -74,14 +78,14 @@ WSGI_APPLICATION = 'kakeibo_project.wsgi.application'
 # =====================
 # DATABASE
 # =====================
-DATABASE_URL = os.getenv("DATABASE_URL")
+DATABASE_URL = os.getenv("DATABASE_URL", "")
 
 if DATABASE_URL:
     DATABASES = {
         "default": dj_database_url.parse(
             DATABASE_URL,
             conn_max_age=600,
-            ssl_require=True
+            ssl_require=not DEBUG,
         )
     }
 else:
@@ -117,7 +121,18 @@ USE_TZ = True
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STORAGES = {
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
 
 # =====================
 # LOGIN
