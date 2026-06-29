@@ -166,12 +166,12 @@
             </div>
             <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="閉じる"></button>
         </div>
-        <div class="offcanvas-body d-flex flex-column gap-3 p-4">
+        <div class="offcanvas-body d-flex flex-column gap-2 p-3 p-sm-4">
             <a class="btn app-nav-button-light w-100" href="{% url 'kakeibo:list' %}">一覧</a>
             <a class="btn app-nav-button-light w-100" href="{% url 'kakeibo:add' %}">入力</a>
             <a class="btn app-nav-button-light w-100" href="{% url 'kakeibo:chart' %}">グラフ</a>
             <a class="btn app-nav-button-light w-100" href="{% url 'kakeibo:category' %}">カテゴリ</a>
-            <form method="post" action="{% url 'logout' %}" class="mt-auto">
+            <form method="post" action="{% url 'logout' %}" class="pt-1">
                 {% csrf_token %}
                 <button type="submit" class="btn btn-primary w-100 app-nav-button">ログアウト</button>
             </form>
