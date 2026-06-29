@@ -24,6 +24,10 @@
                         <td>{{ transaction.category }}</td>
                     </tr>
                     <tr>
+                        <th>支払い方法</th>
+                        <td>{{ transaction.payment_method|default:"未設定" }}</td>
+                    </tr>
+                    <tr>
                         <th>金額</th>
                         <td>{{ transaction.amount }}円</td>
                     </tr>

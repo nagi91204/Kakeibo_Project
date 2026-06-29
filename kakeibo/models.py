@@ -14,6 +14,13 @@ class Category(models.Model):
         return self.name
 
 
+class PaymentMethod(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class Transaction(models.Model):
     TYPE_CHOICES = [
         ('income', '収入'),
@@ -24,6 +31,8 @@ class Transaction(models.Model):
     transaction_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True)
+    payment_method = models.ForeignKey(
+        PaymentMethod, on_delete=models.SET_NULL, null=True, blank=True)
     amount = models.IntegerField()
     memo = models.CharField(max_length=200, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -32,4 +41,5 @@ class Transaction(models.Model):
         ordering = ['-date']
 
     def __str__(self):
-        return f"{self.date} {self.category} {self.amount}円"
+        payment_method = self.payment_method or '未設定'
+        return f"{self.date} {self.category} {payment_method} {self.amount}円"

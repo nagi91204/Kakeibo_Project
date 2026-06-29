@@ -23,6 +23,10 @@
                         {{ form.category }}
                     </div>
                     <div>
+                        <label class="form-label fw-bold">{{ form.payment_method.label }}</label>
+                        {{ form.payment_method }}
+                    </div>
+                    <div>
                         <label class="form-label fw-bold">{{ form.amount.label }}</label>
                         {{ form.amount }}
                     </div>
@@ -57,8 +61,13 @@
     }
 
     const typeSelect = document.getElementById('id_transaction_type');
+    const paymentMethodSelect = document.getElementById('id_payment_method');
 
     filterCategories(typeSelect.value);
+
+    if (paymentMethodSelect) {
+        paymentMethodSelect.value = paymentMethodSelect.value;
+    }
 
     typeSelect.addEventListener('change', function () {
         filterCategories(this.value);

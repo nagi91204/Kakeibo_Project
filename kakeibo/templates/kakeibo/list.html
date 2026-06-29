@@ -86,6 +86,7 @@
                         <th>日付</th>
                         <th>種別</th>
                         <th>カテゴリ</th>
+                        <th class="d-none d-md-table-cell">支払い方法</th>
                         <th class="text-end">金額（円）</th>
                         <th class="d-none d-md-table-cell">メモ</th>
                         <th class="text-center">操作</th>
@@ -103,6 +104,7 @@
                             {% endif %}
                         </td>
                         <td class="text-nowrap">{{ t.category }}</td>
+                        <td class="d-none d-md-table-cell text-nowrap">{{ t.payment_method|default:"未設定" }}</td>
                         <td class="text-end fw-bold
                         {% if t.transaction_type == 'income' %}text-success{% else %}text-danger{% endif %}">
                             {{ t.amount_formatted }}円
@@ -117,7 +119,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">データがありません</td>
+                        <td colspan="7" class="text-center text-muted py-4">データがありません</td>
                     </tr>
                     {% endfor %}
                 </tbody>

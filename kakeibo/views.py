@@ -3,8 +3,8 @@ from django.contrib.auth.decorators import login_required
 import io
 import base64
 import pandas as pd
-from .models import Transaction, Category
-from .forms import TransactionForm, CategoryForm
+from .models import Transaction, Category, PaymentMethod
+from .forms import TransactionForm, CategoryForm, PaymentMethodForm
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 import seaborn as sns
@@ -178,21 +178,32 @@ def fig_to_base64(fig):
 
 @login_required
 def category_view(request):
+    category_form = CategoryForm()
+    payment_method_form = PaymentMethodForm()
+
     if request.method == 'POST':
-        form = CategoryForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('kakeibo:category')
-    else:
-        form = CategoryForm()
+        form_type = request.POST.get('form_type')
+        if form_type == 'category':
+            category_form = CategoryForm(request.POST)
+            if category_form.is_valid():
+                category_form.save()
+                return redirect('kakeibo:category')
+        elif form_type == 'payment_method':
+            payment_method_form = PaymentMethodForm(request.POST)
+            if payment_method_form.is_valid():
+                payment_method_form.save()
+                return redirect('kakeibo:category')
 
     income_categories = Category.objects.filter(transaction_type='income')
     expense_categories = Category.objects.filter(transaction_type='expense')
+    payment_methods = PaymentMethod.objects.all()
 
     return render(request, 'kakeibo/category.html', {
-        'form': form,
+        'category_form': category_form,
+        'payment_method_form': payment_method_form,
         'income_categories': income_categories,
         'expense_categories': expense_categories,
+        'payment_methods': payment_methods,
     })
 
 
@@ -200,6 +211,13 @@ def category_view(request):
 def category_delete(request, pk):
     category = Category.objects.get(pk=pk)
     category.delete()
+    return redirect('kakeibo:category')
+
+
+@login_required
+def payment_method_delete(request, pk):
+    payment_method = PaymentMethod.objects.get(pk=pk)
+    payment_method.delete()
     return redirect('kakeibo:category')
 
 

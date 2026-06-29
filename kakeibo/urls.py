@@ -14,5 +14,7 @@ urlpatterns = [
     path('category/', views.category_view, name='category'),
     path('category/delete/<int:pk>/',
          views.category_delete, name='category_delete'),
+    path('payment-method/delete/<int:pk>/',
+         views.payment_method_delete, name='payment_method_delete'),
     path('api/categories/', views.get_categories, name='get_categories'),
 ]
