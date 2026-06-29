@@ -7,12 +7,7 @@
         <h4 class="page-title mb-1">絞り込み</h4>
         <div class="text-muted small">収入・支出に応じてカテゴリ候補が切り替わります</div>
     </div>
-    <div class="d-flex flex-wrap gap-2 justify-content-center">
-        <a href="{% url 'kakeibo:list' %}"
-            class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center">一覧へ戻る</a>
-        <a href="{% url 'kakeibo:filter' %}"
-            class="btn btn-outline-danger btn-sm d-inline-flex align-items-center justify-content-center">リセット</a>
-    </div>
+
 </div>
 
 <form method="get" class="card shadow-sm mb-4">
@@ -60,6 +55,10 @@
                     class="btn btn-outline-primary btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0 px-3">絞り込む</button>
                 <a href="{% url 'kakeibo:filter' %}"
                     class="btn btn-outline-danger btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0 px-3">リセット</a>
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    <a href="{% url 'kakeibo:list' %}"
+                        class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center">一覧へ戻る</a>
+                </div>
             </div>
         </div>
     </div>
