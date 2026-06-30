@@ -166,8 +166,14 @@ def delete_view(request, pk):
 @login_required
 def chart_view(request):
     import seaborn as sns
-    import japanize_matplotlib
-    font_prop = None
+    import os
+    from django.conf import settings as django_settings
+
+    font_path = os.path.join(
+        django_settings.BASE_DIR, 'kakeibo', 'static', 'fonts', 'NotoSansJP-Regular.ttf')
+    font_manager.fontManager.addfont(font_path)
+    font_prop = font_manager.FontProperties(fname=font_path)
+    plt.rcParams['font.family'] = font_prop.get_name()
 
     def fig_to_base64(fig):
         buf = io.BytesIO()
