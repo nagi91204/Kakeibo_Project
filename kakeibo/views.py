@@ -166,8 +166,8 @@ def delete_view(request, pk):
 @login_required
 def chart_view(request):
     import seaborn as sns
-    font_path = "kakeibo/static/fonts/NotoSansCJK-Regular.ttc"
-    font_prop = font_manager.FontProperties(fname=font_path)
+    import japanize_matplotlib
+    font_prop = None
 
     def fig_to_base64(fig):
         buf = io.BytesIO()
@@ -197,7 +197,7 @@ def chart_view(request):
         fig, ax = plt.subplots(figsize=(6, 6))
         ax.pie(summary.values, labels=summary.index,
                autopct='%1.1f%%', startangle=90)
-        ax.set_title('支出カテゴリ別割合', fontproperties=font_prop)
+        ax.set_title('支出カテゴリ別割合')
         charts['pie'] = fig_to_base64(fig)
 
     # ② 月別収支 棒グラフ
@@ -216,7 +216,7 @@ def chart_view(request):
            for m in months], width=0.4, label='支出', color='salmon')
     ax.set_xticks(x)
     ax.set_xticklabels(months, rotation=45)
-    ax.set_title('月別収支', fontproperties=font_prop)
+    ax.set_title('月別収支')
     ax.legend()
     plt.tight_layout()
     charts['bar'] = fig_to_base64(fig)
@@ -228,9 +228,9 @@ def chart_view(request):
         fig, ax = plt.subplots(figsize=(7, 4))
         sns.barplot(data=cat_summary, x='amount', y='category_name',
                     hue='category_name', legend=False, ax=ax, palette='coolwarm')
-        ax.set_title('カテゴリ別支出金額', fontproperties=font_prop)
-        ax.set_xlabel('金額（円）', fontproperties=font_prop)
-        ax.set_ylabel('カテゴリ', fontproperties=font_prop)
+        ax.set_title('カテゴリ別支出金額')
+        ax.set_xlabel('金額（円）')
+        ax.set_ylabel('カテゴリ')
         plt.tight_layout()
         charts['hbar'] = fig_to_base64(fig)
 
