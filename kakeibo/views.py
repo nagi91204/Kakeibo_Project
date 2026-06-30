@@ -2,8 +2,8 @@ import matplotlib
 
 matplotlib.use("Agg")  # noqa: E402
 
-import japanize_matplotlib
 from matplotlib import pyplot as plt
+from matplotlib import font_manager
 
 from django.contrib.auth.decorators import login_required
 import io
@@ -166,6 +166,8 @@ def delete_view(request, pk):
 @login_required
 def chart_view(request):
     import seaborn as sns
+    font_path = "kakeibo/static/fonts/NotoSansCJK-Regular.ttc"
+    font_prop = font_manager.FontProperties(fname=font_path)
 
     def fig_to_base64(fig):
         buf = io.BytesIO()
@@ -183,7 +185,6 @@ def chart_view(request):
     df = pd.DataFrame(list(transactions.values(
         'date', 'category_id', 'transaction_type', 'amount')))
 
-    # カテゴリ名を取得
     categories = {c.id: c.name for c in Category.objects.all()}
     df['category_name'] = df['category_id'].map(categories)
 
@@ -196,7 +197,7 @@ def chart_view(request):
         fig, ax = plt.subplots(figsize=(6, 6))
         ax.pie(summary.values, labels=summary.index,
                autopct='%1.1f%%', startangle=90)
-        ax.set_title('支出カテゴリ別割合')
+        ax.set_title('支出カテゴリ別割合', fontproperties=font_prop)
         charts['pie'] = fig_to_base64(fig)
 
     # ② 月別収支 棒グラフ
@@ -215,33 +216,25 @@ def chart_view(request):
            for m in months], width=0.4, label='支出', color='salmon')
     ax.set_xticks(x)
     ax.set_xticklabels(months, rotation=45)
-    ax.set_title('月別収支')
+    ax.set_title('月別収支', fontproperties=font_prop)
     ax.legend()
     plt.tight_layout()
     charts['bar'] = fig_to_base64(fig)
 
+    # ③ カテゴリ別支出 横棒グラフ
     if not expense_df.empty:
         cat_summary = expense_df.groupby('category_name')[
             'amount'].sum().reset_index()
         fig, ax = plt.subplots(figsize=(7, 4))
-        sns.barplot(data=cat_summary, x='amount',
-                    y='category_name', hue='category_name', legend=False, ax=ax, palette='coolwarm')
-        ax.set_title('カテゴリ別支出金額')
-        ax.set_xlabel('金額（円）')
-        ax.set_ylabel('カテゴリ')
+        sns.barplot(data=cat_summary, x='amount', y='category_name',
+                    hue='category_name', legend=False, ax=ax, palette='coolwarm')
+        ax.set_title('カテゴリ別支出金額', fontproperties=font_prop)
+        ax.set_xlabel('金額（円）', fontproperties=font_prop)
+        ax.set_ylabel('カテゴリ', fontproperties=font_prop)
         plt.tight_layout()
         charts['hbar'] = fig_to_base64(fig)
 
     return render(request, 'kakeibo/chart.html', {'charts': charts})
-
-
-def fig_to_base64(fig):
-    buf = io.BytesIO()
-    fig.savefig(buf, format='png', bbox_inches='tight')
-    buf.seek(0)
-    image = base64.b64encode(buf.read()).decode('utf-8')
-    plt.close(fig)
-    return image
 
 
 @login_required
