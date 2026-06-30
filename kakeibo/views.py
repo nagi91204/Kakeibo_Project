@@ -161,7 +161,7 @@ def chart_view(request):
     import matplotlib
     matplotlib.use('Agg')
     import seaborn as sns
-    plt.rcParams['font.family'] = 'Hiragino Sans'
+    plt.rcParams['font.family'] = 'Noto Sans CJK JP'
 
     def fig_to_base64(fig):
         buf = io.BytesIO()
