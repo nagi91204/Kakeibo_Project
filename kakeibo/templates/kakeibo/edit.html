@@ -11,7 +11,7 @@
                 <form method="post" class="d-grid gap-3">
                     {% csrf_token %}
                     {% for field in form %}
-                    <div {% if field.name=='payment_method' %}id="payment-method-row" {% endif %}>
+                    <div id="{{ field.name }}-row">
                         <label class="form-label fw-bold">{{ field.label }}</label>
                         {{ field }}
                         {% if field.errors %}
@@ -35,7 +35,7 @@
     const currentCategoryId = "{{ transaction.category.id }}";
     const typeSelect = document.getElementById('id_transaction_type');
     const categorySelect = document.getElementById('id_category');
-    const paymentMethodRow = document.getElementById('payment-method-row');
+    const paymentMethodRow = document.getElementById('payment_method-row');
     const paymentMethodSelect = document.getElementById('id_payment_method');
 
     function setPaymentMethodVisibility(type) {
