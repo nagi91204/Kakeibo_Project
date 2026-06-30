@@ -38,7 +38,7 @@ class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['-date']
+        ordering = ['-date', '-created_at']
 
     def __str__(self):
         payment_method = self.payment_method or '未設定'

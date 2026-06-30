@@ -15,6 +15,7 @@ class PaymentMethodAdmin(admin.ModelAdmin):
 
 @admin.register(Transaction)
 class TransactionAdmin(admin.ModelAdmin):
+
     list_display = ['date', 'transaction_type',
                     'category', 'payment_method', 'amount', 'memo']
     list_filter = ['transaction_type', 'category', 'payment_method']
