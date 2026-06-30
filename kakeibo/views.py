@@ -1,13 +1,20 @@
+import matplotlib
+
+matplotlib.use("Agg")  # noqa: E402
+
+import japanize_matplotlib
+from matplotlib import pyplot as plt
+
 from django.contrib.auth.decorators import login_required
 import io
 import base64
-from matplotlib import pyplot as plt
 import pandas as pd
 from django import forms
-from .models import Transaction, Category, PaymentMethod
-from .forms import TransactionForm, CategoryForm, PaymentMethodForm
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
+
+from .forms import TransactionForm, CategoryForm, PaymentMethodForm
+from .models import Transaction, Category, PaymentMethod
 
 
 def build_transaction_filter_context(request):
@@ -158,10 +165,7 @@ def delete_view(request, pk):
 
 @login_required
 def chart_view(request):
-    import matplotlib
-    matplotlib.use('Agg')
     import seaborn as sns
-    plt.rcParams['font.family'] = 'Noto Sans CJK JP'
 
     def fig_to_base64(fig):
         buf = io.BytesIO()
