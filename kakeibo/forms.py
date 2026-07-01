@@ -56,12 +56,13 @@ class TransactionForm(forms.ModelForm):
     class Meta:
         model = Transaction
         fields = ['date', 'transaction_type', 'category',
-                  'payment_method', 'amount', 'memo']
+                  'income_source', 'payment_method', 'amount', 'memo']
         widgets = {
 
             'date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'transaction_type': forms.Select(attrs={'class': 'form-select', 'id': 'id_transaction_type'}),
             'category': forms.Select(attrs={'class': 'form-select', 'id': 'id_category'}),
+            'income_source': forms.Select(attrs={'id': 'id_income_source', 'class': 'form-select', 'data-row-id': 'income-source-row'}),
             'payment_method': forms.Select(attrs={'id': 'id_payment_method', 'class': 'form-select', 'data-row-id': 'payment-method-row'}),
             'amount': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': '金額を入力'}),
             'memo': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'メモ（任意）'}),
@@ -70,6 +71,7 @@ class TransactionForm(forms.ModelForm):
             'date': '日付',
             'transaction_type': '種別',
             'category': 'カテゴリ',
+            'income_source': '入金先',
             'payment_method': '支払い方法',
             'amount': '金額（円）',
             'memo': 'メモ',

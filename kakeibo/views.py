@@ -13,6 +13,7 @@ import base64
 import pandas as pd
 from django import forms
 from django.http import JsonResponse
+from django.db.models import Q
 from django.shortcuts import render, redirect, get_object_or_404
 
 from .forms import TransactionForm, CategoryForm, PaymentMethodForm, AccountBalanceForm
@@ -32,7 +33,7 @@ def get_keyword_balance(recorded_balances, keywords):
 
 def build_transaction_filter_context(request):
     transactions = Transaction.objects.select_related(
-        'category', 'payment_method')
+        'category', 'payment_method', 'income_source')
 
     selected_month = request.GET.get('month', '')
     selected_type = request.GET.get('transaction_type', '')
@@ -48,7 +49,9 @@ def build_transaction_filter_context(request):
         transactions = transactions.filter(category_id=selected_category)
     if selected_payment_method and selected_payment_method.isdigit():
         transactions = transactions.filter(
-            payment_method_id=selected_payment_method)
+            Q(payment_method_id=selected_payment_method) |
+            Q(income_source_id=selected_payment_method)
+        )
 
     all_months = Transaction.objects.dates('date', 'month', order='DESC')
     months = [m.strftime('%Y-%m') for m in all_months]
@@ -114,8 +117,7 @@ def list_view(request):
 
     payment_balance_map = defaultdict(int)
     for transaction in transactions:
-        payment_method_name = (transaction.payment_method.name
-                               if transaction.payment_method else '未設定')
+        payment_method_name = transaction.effective_payment_method_name
         signed_amount = transaction.amount if transaction.transaction_type == 'income' else -transaction.amount
         payment_balance_map[payment_method_name] += signed_amount
 
@@ -223,9 +225,9 @@ def chart_view(request):
     payment_method_count = defaultdict(int)
     payment_method_amount = defaultdict(int)
 
-    for transaction in transactions.select_related('category', 'payment_method'):
+    for transaction in transactions.select_related('category', 'payment_method', 'income_source'):
         month_key = transaction.date.strftime('%Y-%m')
-        payment_method_name = transaction.payment_method.name if transaction.payment_method else '未設定'
+        payment_method_name = transaction.effective_payment_method_name
 
         if transaction.transaction_type == 'income':
             monthly_income[month_key] += transaction.amount
@@ -247,7 +249,7 @@ def chart_view(request):
     payment_balances = []
     for payment_method in PaymentMethod.objects.all():
         method_transactions = transactions.filter(
-            payment_method=payment_method)
+            Q(payment_method=payment_method) | Q(income_source=payment_method))
         income_total = sum(
             item.amount for item in method_transactions if item.transaction_type == 'income')
         expense_total = sum(

@@ -35,22 +35,29 @@
     const currentCategoryId = "{{ transaction.category.id }}";
     const typeSelect = document.getElementById('id_transaction_type');
     const categorySelect = document.getElementById('id_category');
+    const incomeSourceRow = document.getElementById('income_source-row');
+    const incomeSourceSelect = document.getElementById('id_income_source');
     const paymentMethodRow = document.getElementById('payment_method-row');
     const paymentMethodSelect = document.getElementById('id_payment_method');
 
-    function setPaymentMethodVisibility(type) {
+    function setMethodVisibility(type) {
         if (type === 'income') {
+            incomeSourceRow.style.display = '';
+            incomeSourceSelect.disabled = false;
             paymentMethodRow.style.display = 'none';
             paymentMethodSelect.disabled = true;
             paymentMethodSelect.value = '';
         } else {
+            incomeSourceRow.style.display = 'none';
+            incomeSourceSelect.disabled = true;
+            incomeSourceSelect.value = '';
             paymentMethodRow.style.display = '';
             paymentMethodSelect.disabled = false;
         }
     }
 
     function filterCategories(type, selectedId = null) {
-        setPaymentMethodVisibility(type);
+        setMethodVisibility(type);
 
         fetch(`/api/categories/?type=${encodeURIComponent(type)}`)
             .then(res => res.json())

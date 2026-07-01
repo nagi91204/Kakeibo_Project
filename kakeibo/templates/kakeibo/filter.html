@@ -40,7 +40,7 @@
                 </select>
             </div>
             <div class="col-12 col-md-3">
-                <label class="form-label fw-bold">支払い方法</label>
+                <label class="form-label fw-bold">支払い方法・入金先</label>
                 <select name="payment_method" class="form-select">
                     <option value="">すべて</option>
                     {% for method in payment_methods %}
@@ -87,7 +87,9 @@
                         </td>
                         <td>
                             <div class="text-nowrap">{{ t.category }}</div>
-                            <div class="small text-muted text-nowrap">{{ t.payment_method|default:"未設定" }}</div>
+                            {% if t.effective_payment_method_name %}
+                            <div class="small text-muted text-nowrap">{{ t.effective_payment_method_name }}</div>
+                            {% endif %}
                         </td>
                         <td class="text-end fw-bold
                         {% if t.transaction_type == 'income' %}text-success{% else %}text-danger{% endif %}">

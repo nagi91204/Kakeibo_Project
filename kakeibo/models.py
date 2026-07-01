@@ -41,6 +41,13 @@ class Transaction(models.Model):
     transaction_type = models.CharField(max_length=10, choices=TYPE_CHOICES)
     category = models.ForeignKey(
         Category, on_delete=models.SET_NULL, null=True)
+    income_source = models.ForeignKey(
+        PaymentMethod,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='income_transactions',
+    )
     payment_method = models.ForeignKey(
         PaymentMethod, on_delete=models.SET_NULL, null=True, blank=True)
     amount = models.IntegerField()
@@ -50,6 +57,19 @@ class Transaction(models.Model):
     class Meta:
         ordering = ['-date', '-created_at']
 
+    @property
+    def effective_payment_method(self):
+        if self.transaction_type == 'income':
+            return self.income_source
+        return self.payment_method
+
+    @property
+    def effective_payment_method_name(self):
+        payment_method = self.effective_payment_method
+        return payment_method.name if payment_method else ''
+
     def __str__(self):
-        payment_method = self.payment_method or '未設定'
-        return f"{self.date} {self.category} {payment_method} {self.amount}円"
+        payment_method_name = self.effective_payment_method_name
+        if payment_method_name:
+            return f"{self.date} {self.category} {payment_method_name} {self.amount}円"
+        return f"{self.date} {self.category} {self.amount}円"
