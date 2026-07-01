@@ -25,7 +25,7 @@
                     </tr>
                     <tr>
                         <th>支払い方法</th>
-                        <td>{{ transaction.payment_method|default:"未設定" }}</td>
+                        <td>{{ transaction.effective_payment_method_name|default:"未設定" }}</td>
                     </tr>
                     <tr>
                         <th>金額</th>
@@ -36,12 +36,11 @@
                         <td>{{ transaction.memo }}</td>
                     </tr>
                 </table>
-                <form method="post"
-                    class="d-flex flex-row flex-nowrap gap-2 justify-content-center overflow-auto mobile-actions">
+                <form method="post" class="d-flex flex-column flex-sm-row gap-2 justify-content-center mobile-actions">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-danger flex-shrink-0 text-nowrap">削除する</button>
+                    <button type="submit" class="btn btn-danger flex-fill flex-sm-shrink-0 text-nowrap">削除する</button>
                     <a href="{% url 'kakeibo:list' %}"
-                        class="btn btn-outline-secondary flex-shrink-0 text-nowrap">キャンセル</a>
+                        class="btn btn-outline-secondary flex-fill flex-sm-shrink-0 text-nowrap">キャンセル</a>
                 </form>
             </div>
         </div>

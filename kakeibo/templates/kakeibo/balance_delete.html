@@ -20,12 +20,11 @@
                         <td>{{ balance.balance }}円</td>
                     </tr>
                 </table>
-                <form method="post"
-                    class="d-flex flex-row flex-nowrap gap-2 justify-content-center overflow-auto mobile-actions">
+                <form method="post" class="d-flex flex-column flex-sm-row gap-2 justify-content-center mobile-actions">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-danger flex-shrink-0 text-nowrap">削除する</button>
+                    <button type="submit" class="btn btn-danger flex-fill flex-sm-shrink-0 text-nowrap">削除する</button>
                     <a href="{% url 'kakeibo:category' %}"
-                        class="btn btn-outline-secondary flex-shrink-0 text-nowrap">キャンセル</a>
+                        class="btn btn-outline-secondary flex-fill flex-sm-shrink-0 text-nowrap">キャンセル</a>
                 </form>
             </div>
         </div>
