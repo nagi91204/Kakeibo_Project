@@ -74,6 +74,47 @@
                 {% endfor %}
             </ul>
         </div>
+
+        <div class="card app-card mt-4">
+            <div class="card-header bg-secondary text-white d-flex align-items-center justify-content-between gap-2">
+                <h5 class="mb-0">残高登録</h5>
+                <a href="{% url 'kakeibo:balance_add' %}"
+                    class="btn btn-light btn-sm d-inline-flex align-items-center justify-content-center">追加</a>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0 align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>支払い元</th>
+                                <th class="text-end">残高</th>
+                                <th class="text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for balance in account_balances %}
+                            <tr>
+                                <td>{{ balance.payment_method.name }}</td>
+                                <td class="text-end fw-bold">{{ balance.balance }}円</td>
+                                <td class="text-center">
+                                    <div class="d-flex justify-content-center gap-2 flex-nowrap">
+                                        <a href="{% url 'kakeibo:balance_edit' balance.pk %}"
+                                            class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center">編集</a>
+                                        <a href="{% url 'kakeibo:balance_delete' balance.pk %}"
+                                            class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center">削除</a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted py-3">残高が未登録です</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

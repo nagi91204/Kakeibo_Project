@@ -19,11 +19,11 @@
                         {% endif %}
                     </div>
                     {% endfor %}
-                    <div class="d-grid gap-2 d-md-flex justify-content-center">
+                    <div class="d-flex flex-row flex-nowrap gap-2 justify-content-center overflow-auto">
                         <button type="submit"
-                            class="btn btn-outline-warning w-100 d-inline-flex align-items-center justify-content-center">更新する</button>
+                            class="btn btn-outline-warning flex-shrink-0 text-nowrap d-inline-flex align-items-center justify-content-center">更新する</button>
                         <a href="{% url 'kakeibo:list' %}"
-                            class="btn btn-outline-secondary w-100 d-inline-flex align-items-center justify-content-center">キャンセル</a>
+                            class="btn btn-outline-secondary flex-shrink-0 text-nowrap d-inline-flex align-items-center justify-content-center">キャンセル</a>
                     </div>
                 </form>
             </div>

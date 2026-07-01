@@ -25,5 +25,9 @@ urlpatterns = [
          views.payment_method_edit_view, name='payment_method_edit'),
     path('payment-method/delete/<int:pk>/',
          views.payment_method_delete, name='payment_method_delete'),
+    path('balance/add/', views.balance_create_view, name='balance_add'),
+    path('balance/edit/<int:pk>/', views.balance_edit_view, name='balance_edit'),
+    path('balance/delete/<int:pk>/',
+         views.balance_delete_view, name='balance_delete'),
     path('api/categories/', views.get_categories, name='get_categories'),
 ]

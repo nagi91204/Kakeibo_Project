@@ -1,6 +1,6 @@
 # kakeibo/forms.py
 from django import forms
-from .models import Transaction, Category, PaymentMethod
+from .models import Transaction, Category, PaymentMethod, AccountBalance
 
 
 class CategoryForm(forms.ModelForm):
@@ -32,6 +32,23 @@ class PaymentMethodForm(forms.ModelForm):
         }
         labels = {
             'name': '支払い方法',
+        }
+
+
+class AccountBalanceForm(forms.ModelForm):
+    class Meta:
+        model = AccountBalance
+        fields = ['payment_method', 'balance']
+        widgets = {
+            'payment_method': forms.Select(attrs={'class': 'form-select'}),
+            'balance': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'placeholder': '例: 50000',
+            }),
+        }
+        labels = {
+            'payment_method': '支払い元',
+            'balance': '残高（円）',
         }
 
 

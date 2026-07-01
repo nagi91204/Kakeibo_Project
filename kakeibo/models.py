@@ -21,6 +21,16 @@ class PaymentMethod(models.Model):
         return self.name
 
 
+class AccountBalance(models.Model):
+    payment_method = models.OneToOneField(
+        PaymentMethod, on_delete=models.CASCADE)
+    balance = models.IntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.payment_method} {self.balance}円'
+
+
 class Transaction(models.Model):
     TYPE_CHOICES = [
         ('income', '収入'),

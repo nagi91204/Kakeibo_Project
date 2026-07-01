@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Transaction, Category, PaymentMethod
+from .models import Transaction, Category, PaymentMethod, AccountBalance
 
 
 @admin.register(Category)
@@ -11,6 +11,12 @@ class CategoryAdmin(admin.ModelAdmin):
 @admin.register(PaymentMethod)
 class PaymentMethodAdmin(admin.ModelAdmin):
     list_display = ['name']
+
+
+@admin.register(AccountBalance)
+class AccountBalanceAdmin(admin.ModelAdmin):
+    list_display = ['payment_method', 'balance', 'updated_at']
+    list_select_related = ['payment_method']
 
 
 @admin.register(Transaction)

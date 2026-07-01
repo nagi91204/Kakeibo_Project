@@ -36,10 +36,12 @@
                         <td>{{ transaction.memo }}</td>
                     </tr>
                 </table>
-                <form method="post" class="d-grid gap-2 d-md-flex mobile-actions">
+                <form method="post"
+                    class="d-flex flex-row flex-nowrap gap-2 justify-content-center overflow-auto mobile-actions">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-danger w-100">削除する</button>
-                    <a href="{% url 'kakeibo:list' %}" class="btn btn-outline-secondary w-100">キャンセル</a>
+                    <button type="submit" class="btn btn-outline-danger flex-shrink-0 text-nowrap">削除する</button>
+                    <a href="{% url 'kakeibo:list' %}"
+                        class="btn btn-outline-secondary flex-shrink-0 text-nowrap">キャンセル</a>
                 </form>
             </div>
         </div>

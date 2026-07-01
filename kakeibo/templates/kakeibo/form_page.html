@@ -21,11 +21,11 @@
                         {% endif %}
                     </div>
                     {% endfor %}
-                    <div class="d-grid gap-2 d-md-flex justify-content-center">
+                    <div class="d-flex flex-row flex-nowrap gap-2 justify-content-center overflow-auto">
                         <button type="submit"
-                            class="btn btn-primary d-inline-flex align-items-center justify-content-center">保存する</button>
+                            class="btn btn-primary d-inline-flex align-items-center justify-content-center flex-shrink-0 text-nowrap">保存する</button>
                         <a href="{% url back_url %}"
-                            class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center">キャンセル</a>
+                            class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center flex-shrink-0 text-nowrap">キャンセル</a>
                     </div>
                 </form>
             </div>

@@ -15,8 +15,19 @@ from django import forms
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 
-from .forms import TransactionForm, CategoryForm, PaymentMethodForm
-from .models import Transaction, Category, PaymentMethod
+from .forms import TransactionForm, CategoryForm, PaymentMethodForm, AccountBalanceForm
+from .models import Transaction, Category, PaymentMethod, AccountBalance
+
+
+def get_keyword_balance(recorded_balances, keywords):
+    matched_balances = [
+        item.balance
+        for item in recorded_balances
+        if any(keyword in item.payment_method.name for keyword in keywords)
+    ]
+    if matched_balances:
+        return sum(matched_balances)
+    return None
 
 
 def build_transaction_filter_context(request):
@@ -118,6 +129,19 @@ def list_view(request):
     cash_balance = balance_for_keywords(['現金'])
     bank_balance = balance_for_keywords(['口座', '銀行'])
     paypay_balance = balance_for_keywords(['PayPay', 'paypay', 'ペイペイ'])
+
+    recorded_balances = AccountBalance.objects.select_related('payment_method')
+    recorded_cash = get_keyword_balance(recorded_balances, ['現金'])
+    recorded_bank = get_keyword_balance(recorded_balances, ['口座', '銀行'])
+    recorded_paypay = get_keyword_balance(
+        recorded_balances, ['PayPay', 'paypay', 'ペイペイ'])
+
+    if recorded_cash is not None:
+        cash_balance = recorded_cash
+    if recorded_bank is not None:
+        bank_balance = recorded_bank
+    if recorded_paypay is not None:
+        paypay_balance = recorded_paypay
 
     for t in transactions:
         t.amount_formatted = f'{t.amount:,}'
@@ -240,6 +264,19 @@ def chart_view(request):
     paypay_balance = sum(item['balance'] for item in payment_balances if any(
         keyword in item['name'] for keyword in ['PayPay', 'paypay', 'ペイペイ']))
 
+    recorded_balances = AccountBalance.objects.select_related('payment_method')
+    recorded_cash = get_keyword_balance(recorded_balances, ['現金'])
+    recorded_bank = get_keyword_balance(recorded_balances, ['口座', '銀行'])
+    recorded_paypay = get_keyword_balance(
+        recorded_balances, ['PayPay', 'paypay', 'ペイペイ'])
+
+    if recorded_cash is not None:
+        cash_balance = recorded_cash
+    if recorded_bank is not None:
+        bank_balance = recorded_bank
+    if recorded_paypay is not None:
+        paypay_balance = recorded_paypay
+
     chart_data = {
         'monthly': {
             'labels': month_labels,
@@ -270,15 +307,64 @@ def chart_view(request):
 
 
 @login_required
+def balance_create_view(request):
+    if request.method == 'POST':
+        form = AccountBalanceForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('kakeibo:category')
+    else:
+        form = AccountBalanceForm()
+
+    return render(request, 'kakeibo/form_page.html', {
+        'form': form,
+        'title': '残高を登録',
+        'submit_label': '保存する',
+        'back_url': 'kakeibo:category',
+    })
+
+
+@login_required
+def balance_edit_view(request, pk):
+    balance = get_object_or_404(AccountBalance, pk=pk)
+    if request.method == 'POST':
+        form = AccountBalanceForm(request.POST, instance=balance)
+        if form.is_valid():
+            form.save()
+            return redirect('kakeibo:category')
+    else:
+        form = AccountBalanceForm(instance=balance)
+
+    return render(request, 'kakeibo/form_page.html', {
+        'form': form,
+        'title': '残高を編集',
+        'submit_label': '更新する',
+        'back_url': 'kakeibo:category',
+    })
+
+
+@login_required
+def balance_delete_view(request, pk):
+    balance = get_object_or_404(AccountBalance, pk=pk)
+    if request.method == 'POST':
+        balance.delete()
+        return redirect('kakeibo:category')
+    return render(request, 'kakeibo/balance_delete.html', {'balance': balance})
+
+
+@login_required
 def category_view(request):
     income_categories = Category.objects.filter(transaction_type='income')
     expense_categories = Category.objects.filter(transaction_type='expense')
     payment_methods = PaymentMethod.objects.all()
+    account_balances = AccountBalance.objects.select_related(
+        'payment_method').order_by('payment_method__name')
 
     return render(request, 'kakeibo/category.html', {
         'income_categories': income_categories,
         'expense_categories': expense_categories,
         'payment_methods': payment_methods,
+        'account_balances': account_balances,
     })
 
 
