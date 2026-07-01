@@ -4,6 +4,8 @@ matplotlib.use("Agg")  # noqa: E402
 
 from matplotlib import pyplot as plt
 from matplotlib import font_manager
+from collections import defaultdict
+import json
 
 from django.contrib.auth.decorators import login_required
 import io
@@ -99,6 +101,24 @@ def list_view(request):
         t.amount for t in transactions if t.transaction_type == 'expense')
     balance = total_income - total_expense
 
+    payment_balance_map = defaultdict(int)
+    for transaction in transactions:
+        payment_method_name = (transaction.payment_method.name
+                               if transaction.payment_method else '未設定')
+        signed_amount = transaction.amount if transaction.transaction_type == 'income' else -transaction.amount
+        payment_balance_map[payment_method_name] += signed_amount
+
+    def balance_for_keywords(keywords):
+        return sum(
+            amount
+            for name, amount in payment_balance_map.items()
+            if any(keyword in name for keyword in keywords)
+        )
+
+    cash_balance = balance_for_keywords(['現金'])
+    bank_balance = balance_for_keywords(['口座', '銀行'])
+    paypay_balance = balance_for_keywords(['PayPay', 'paypay', 'ペイペイ'])
+
     for t in transactions:
         t.amount_formatted = f'{t.amount:,}'
 
@@ -108,6 +128,9 @@ def list_view(request):
         'total_expense': f'{total_expense:,}',
         'balance': f'{balance:,}',
         'balance_sign': balance >= 0,
+        'cash_balance': f'{cash_balance:,}',
+        'bank_balance': f'{bank_balance:,}',
+        'paypay_balance': f'{paypay_balance:,}',
         'types': context['types'],
         'months': context['months'],
         'selected_month': context['selected_month'],
@@ -165,82 +188,85 @@ def delete_view(request, pk):
 
 @login_required
 def chart_view(request):
-    import seaborn as sns
-    import os
-    from django.conf import settings as django_settings
-
-    font_path = os.path.join(
-        django_settings.BASE_DIR, 'kakeibo', 'static', 'fonts', 'NotoSansJP-Regular.ttf')
-    font_manager.fontManager.addfont(font_path)
-    font_prop = font_manager.FontProperties(fname=font_path)
-    plt.rcParams['font.family'] = font_prop.get_name()
-
-    def fig_to_base64(fig):
-        buf = io.BytesIO()
-        fig.savefig(buf, format='png', bbox_inches='tight')
-        buf.seek(0)
-        image = base64.b64encode(buf.read()).decode('utf-8')
-        plt.close(fig)
-        return image
-
     transactions = Transaction.objects.all()
 
     if not transactions:
         return render(request, 'kakeibo/chart.html', {'error': 'データがありません'})
 
-    df = pd.DataFrame(list(transactions.values(
-        'date', 'category_id', 'transaction_type', 'amount')))
+    monthly_income = defaultdict(int)
+    monthly_expense = defaultdict(int)
+    expense_category = defaultdict(int)
+    payment_method_count = defaultdict(int)
+    payment_method_amount = defaultdict(int)
 
-    categories = {c.id: c.name for c in Category.objects.all()}
-    df['category_name'] = df['category_id'].map(categories)
+    for transaction in transactions.select_related('category', 'payment_method'):
+        month_key = transaction.date.strftime('%Y-%m')
+        payment_method_name = transaction.payment_method.name if transaction.payment_method else '未設定'
 
-    charts = {}
+        if transaction.transaction_type == 'income':
+            monthly_income[month_key] += transaction.amount
+        else:
+            monthly_expense[month_key] += transaction.amount
+            category_name = transaction.category.name if transaction.category else '未設定'
+            expense_category[category_name] += transaction.amount
 
-    # ① 支出カテゴリ別 円グラフ
-    expense_df = df[df['transaction_type'] == 'expense']
-    if not expense_df.empty:
-        summary = expense_df.groupby('category_name')['amount'].sum()
-        fig, ax = plt.subplots(figsize=(6, 6))
-        ax.pie(summary.values, labels=summary.index,
-               autopct='%1.1f%%', startangle=90)
-        ax.set_title('支出カテゴリ別割合')
-        charts['pie'] = fig_to_base64(fig)
+        payment_method_count[payment_method_name] += 1
+        payment_method_amount[payment_method_name] += transaction.amount
 
-    # ② 月別収支 棒グラフ
-    df['month'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m')
-    monthly_income = df[df['transaction_type'] == 'income'].groupby('month')[
-        'amount'].sum()
-    monthly_expense = df[df['transaction_type'] == 'expense'].groupby('month')[
-        'amount'].sum()
-    months = sorted(set(monthly_income.index) | set(monthly_expense.index))
+    month_labels = sorted(set(monthly_income.keys()) |
+                          set(monthly_expense.keys()))
+    category_labels = [name for name, _ in sorted(
+        expense_category.items(), key=lambda item: item[1], reverse=True)]
+    payment_method_labels = [name for name, _ in sorted(
+        payment_method_count.items(), key=lambda item: item[1], reverse=True)]
 
-    fig, ax = plt.subplots(figsize=(8, 4))
-    x = range(len(months))
-    ax.bar([i - 0.2 for i in x], [monthly_income.get(m, 0)
-           for m in months], width=0.4, label='収入', color='steelblue')
-    ax.bar([i + 0.2 for i in x], [monthly_expense.get(m, 0)
-           for m in months], width=0.4, label='支出', color='salmon')
-    ax.set_xticks(x)
-    ax.set_xticklabels(months, rotation=45)
-    ax.set_title('月別収支')
-    ax.legend()
-    plt.tight_layout()
-    charts['bar'] = fig_to_base64(fig)
+    payment_balances = []
+    for payment_method in PaymentMethod.objects.all():
+        method_transactions = transactions.filter(
+            payment_method=payment_method)
+        income_total = sum(
+            item.amount for item in method_transactions if item.transaction_type == 'income')
+        expense_total = sum(
+            item.amount for item in method_transactions if item.transaction_type == 'expense')
+        payment_balances.append({
+            'name': payment_method.name,
+            'balance': income_total - expense_total,
+        })
 
-    # ③ カテゴリ別支出 横棒グラフ
-    if not expense_df.empty:
-        cat_summary = expense_df.groupby('category_name')[
-            'amount'].sum().reset_index()
-        fig, ax = plt.subplots(figsize=(7, 4))
-        sns.barplot(data=cat_summary, x='amount', y='category_name',
-                    hue='category_name', legend=False, ax=ax, palette='coolwarm')
-        ax.set_title('カテゴリ別支出金額')
-        ax.set_xlabel('金額（円）')
-        ax.set_ylabel('カテゴリ')
-        plt.tight_layout()
-        charts['hbar'] = fig_to_base64(fig)
+    cash_balance = sum(item['balance']
+                       for item in payment_balances if '現金' in item['name'])
+    bank_balance = sum(item['balance'] for item in payment_balances if any(
+        keyword in item['name'] for keyword in ['口座', '銀行']))
+    paypay_balance = sum(item['balance'] for item in payment_balances if any(
+        keyword in item['name'] for keyword in ['PayPay', 'paypay', 'ペイペイ']))
 
-    return render(request, 'kakeibo/chart.html', {'charts': charts})
+    chart_data = {
+        'monthly': {
+            'labels': month_labels,
+            'income': [monthly_income.get(label, 0) for label in month_labels],
+            'expense': [monthly_expense.get(label, 0) for label in month_labels],
+        },
+        'expense_category': {
+            'labels': category_labels,
+            'values': [expense_category[label] for label in category_labels],
+        },
+        'payment_method_count': {
+            'labels': payment_method_labels,
+            'values': [payment_method_count[label] for label in payment_method_labels],
+        },
+        'payment_method_amount': {
+            'labels': payment_method_labels,
+            'values': [payment_method_amount[label] for label in payment_method_labels],
+        },
+    }
+
+    return render(request, 'kakeibo/chart.html', {
+        'chart_data_json': json.dumps(chart_data, ensure_ascii=False),
+        'payment_balances': payment_balances,
+        'cash_balance': f'{cash_balance:,}',
+        'bank_balance': f'{bank_balance:,}',
+        'paypay_balance': f'{paypay_balance:,}',
+    })
 
 
 @login_required

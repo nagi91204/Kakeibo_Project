@@ -7,7 +7,8 @@
         <h4 class="page-title mb-1">絞り込み</h4>
         <div class="text-muted small">収入・支出に応じてカテゴリ候補が切り替わります</div>
     </div>
-
+    <a href="{% url 'kakeibo:list' %}"
+        class="btn btn-outline-secondary d-inline-flex align-items-center justify-content-center flex-shrink-0 text-nowrap">一覧へ戻る</a>
 </div>
 
 <form method="get" class="card shadow-sm mb-4">
@@ -50,15 +51,13 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-12 col-md-3 d-flex gap-2 justify-content-center flex-nowrap">
+            <div class="col-12 d-flex flex-wrap gap-2 justify-content-center justify-content-md-start">
                 <button type="submit"
-                    class="btn btn-outline-primary btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0 px-3">絞り込む</button>
+                    class="btn btn-outline-primary btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0 px-3 text-nowrap">絞り込む</button>
                 <a href="{% url 'kakeibo:filter' %}"
-                    class="btn btn-outline-danger btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0 px-3">リセット</a>
-                <div class="d-flex flex-wrap gap-2 justify-content-center">
-                    <a href="{% url 'kakeibo:list' %}"
-                        class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center">一覧へ戻る</a>
-                </div>
+                    class="btn btn-outline-danger btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0 px-3 text-nowrap">リセット</a>
+                <a href="{% url 'kakeibo:list' %}"
+                    class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center justify-content-center flex-shrink-0 px-3 text-nowrap">一覧へ戻る</a>
             </div>
         </div>
     </div>
@@ -73,7 +72,6 @@
                         <th>日付</th>
                         <th>種別</th>
                         <th>カテゴリ</th>
-                        <th class="d-none d-md-table-cell">支払い方法</th>
                         <th class="text-end">金額（円）</th>
                         <th class="d-none d-md-table-cell">メモ</th>
                     </tr>
@@ -89,8 +87,10 @@
                             <span class="badge bg-danger">支出</span>
                             {% endif %}
                         </td>
-                        <td class="text-nowrap">{{ t.category }}</td>
-                        <td class="d-none d-md-table-cell text-nowrap">{{ t.payment_method|default:"未設定" }}</td>
+                        <td>
+                            <div class="text-nowrap">{{ t.category }}</div>
+                            <div class="small text-muted text-nowrap">{{ t.payment_method|default:"未設定" }}</div>
+                        </td>
                         <td class="text-end fw-bold
                         {% if t.transaction_type == 'income' %}text-success{% else %}text-danger{% endif %}">
                             {{ t.amount_formatted }}円
@@ -99,7 +99,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center text-muted py-4">データがありません</td>
+                        <td colspan="5" class="text-center text-muted py-4">データがありません</td>
                     </tr>
                     {% endfor %}
                 </tbody>
