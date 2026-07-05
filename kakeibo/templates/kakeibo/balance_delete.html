@@ -22,9 +22,10 @@
                 </table>
                 <form method="post" class="d-flex flex-column flex-sm-row gap-2 justify-content-center mobile-actions">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger flex-fill flex-sm-shrink-0 text-nowrap">削除する</button>
+                    <button type="submit"
+                        class="btn btn-danger flex-fill flex-sm-shrink-0 text-nowrap d-inline-flex align-items-center justify-content-center">削除する</button>
                     <a href="{% url 'kakeibo:category' %}"
-                        class="btn btn-outline-secondary flex-fill flex-sm-shrink-0 text-nowrap">キャンセル</a>
+                        class="btn btn-outline-secondary flex-fill flex-sm-shrink-0 text-nowrap d-inline-flex align-items-center justify-content-center">キャンセル</a>
                 </form>
             </div>
         </div>

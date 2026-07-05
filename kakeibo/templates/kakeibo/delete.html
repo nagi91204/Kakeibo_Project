@@ -24,7 +24,7 @@
                         <td>{{ transaction.category }}</td>
                     </tr>
                     <tr>
-                        <th>支払い方法</th>
+                        <th>{% if transaction.transaction_type == 'income' %}入金先{% else %}支払い方法{% endif %}</th>
                         <td>{{ transaction.effective_payment_method_name|default:"未設定" }}</td>
                     </tr>
                     <tr>
@@ -38,9 +38,10 @@
                 </table>
                 <form method="post" class="d-flex flex-column flex-sm-row gap-2 justify-content-center mobile-actions">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-danger flex-fill flex-sm-shrink-0 text-nowrap">削除する</button>
+                    <button type="submit"
+                        class="btn btn-danger flex-fill flex-sm-shrink-0 text-nowrap d-inline-flex align-items-center justify-content-center">削除する</button>
                     <a href="{% url 'kakeibo:list' %}"
-                        class="btn btn-outline-secondary flex-fill flex-sm-shrink-0 text-nowrap">キャンセル</a>
+                        class="btn btn-outline-secondary flex-fill flex-sm-shrink-0 text-nowrap d-inline-flex align-items-center justify-content-center">キャンセル</a>
                 </form>
             </div>
         </div>

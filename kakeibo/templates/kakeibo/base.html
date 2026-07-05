@@ -50,14 +50,14 @@
         }
 
         .app-nav-button {
-            min-height: 52px;
+            min-height: 36px;
             border-radius: 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
             line-height: 1.2;
-            padding: 0.75rem 1rem;
+            padding: 0.35rem 0.6rem;
             text-align: center;
         }
 
@@ -72,13 +72,13 @@
             background: #fff;
             color: #0d6efd;
             box-shadow: 0 10px 24px rgba(13, 110, 253, 0.08);
-            min-height: 52px;
+            min-height: 36px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
             line-height: 1.2;
-            padding: 0.75rem 1rem;
+            padding: 0.35rem 0.6rem;
             text-align: center;
         }
 
@@ -93,6 +93,11 @@
         .app-table thead th {
             font-size: 0.9rem;
             letter-spacing: 0.02em;
+        }
+
+        .list-compact-table tbody td,
+        .list-compact-table thead th {
+            vertical-align: middle;
         }
 
         .btn {
@@ -133,7 +138,13 @@
             .btn,
             .form-control,
             .form-select {
-                min-height: 50px;
+                min-height: 34px;
+            }
+
+            .btn {
+                --bs-btn-padding-y: 0.08rem;
+                --bs-btn-padding-x: 0.35rem;
+                --bs-btn-font-size: 0.72rem;
             }
 
             .mobile-stack .btn {
@@ -162,6 +173,110 @@
 
             .summary-value {
                 font-size: 1rem;
+            }
+
+            .list-compact-table thead th,
+            .list-compact-table tbody td {
+                padding-top: 0.28rem;
+                padding-bottom: 0.28rem;
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
+                font-size: 0.84rem;
+                line-height: 1.1;
+            }
+
+            .list-compact-table {
+                table-layout: auto;
+                min-width: unset;
+                width: 100%;
+            }
+
+            .list-compact-table thead th:nth-child(1),
+            .list-compact-table tbody td:nth-child(1) {
+                width: auto;
+                white-space: nowrap;
+            }
+
+            .list-compact-table thead th:nth-child(2),
+            .list-compact-table tbody td:nth-child(2) {
+                width: auto;
+            }
+
+            .list-compact-table thead th:nth-child(3),
+            .list-compact-table tbody td:nth-child(3) {
+                width: auto;
+                white-space: nowrap;
+
+            }
+
+            .list-compact-table thead th:nth-child(4),
+            .list-compact-table tbody td:nth-child(4) {
+                white-space: nowrap;
+                width: auto;
+            }
+
+            .list-compact-table thead th:nth-child(6),
+            .list-compact-table tbody td:nth-child(6) {
+                width: auto;
+                white-space: nowrap;
+            }
+
+            .list-compact-table tbody .badge {
+                padding: 0.35em 0.55em;
+                font-size: 0.72rem;
+            }
+
+            .list-compact-table tbody .btn {
+                min-height: 24px;
+                padding-top: 0.08rem;
+                padding-bottom: 0.08rem;
+                font-size: 0.68rem;
+                line-height: 1;
+            }
+
+            .list-compact-table tbody .text-nowrap {
+                white-space: normal !important;
+            }
+
+            .list-compact-table tbody td:nth-child(6)>div {
+                flex-direction: row !important;
+                gap: 0.35rem !important;
+            }
+
+            .list-compact-table tbody td:nth-child(6) .btn {
+                width: auto;
+                min-width: auto;
+                flex: 0 0 auto;
+                padding-left: 1px;
+                padding-right: 1px;
+            }
+
+            .mobile-actions {
+                flex-wrap: nowrap;
+            }
+
+            .mobile-actions .btn,
+            .mobile-actions a.btn {
+                width: auto;
+                min-width: auto;
+                flex: 0 0 auto;
+                padding-left: 1px;
+                padding-right: 1px;
+            }
+
+            .card.app-card .list-group-item .btn {
+                width: auto;
+                min-width: auto;
+                flex: 0 0 auto;
+                padding-left: 1px;
+                padding-right: 1px;
+                font-size: 0.68rem;
+                line-height: 1;
+            }
+
+            .list-compact-table tbody td:nth-child(3) .small {
+                font-size: 0.72rem;
+                line-height: 1.05;
             }
         }
 
