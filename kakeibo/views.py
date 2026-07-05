@@ -139,11 +139,11 @@ def list_view(request):
         recorded_balances, ['PayPay', 'paypay', 'ペイペイ'])
 
     if recorded_cash is not None:
-        cash_balance = recorded_cash
+        cash_balance = recorded_cash + cash_balance
     if recorded_bank is not None:
-        bank_balance = recorded_bank
+        bank_balance = recorded_bank + bank_balance
     if recorded_paypay is not None:
-        paypay_balance = recorded_paypay
+        paypay_balance = recorded_paypay + paypay_balance
 
     for t in transactions:
         t.amount_formatted = f'{t.amount:,}'
@@ -272,12 +272,14 @@ def chart_view(request):
     recorded_paypay = get_keyword_balance(
         recorded_balances, ['PayPay', 'paypay', 'ペイペイ'])
 
+# ここから修正 ↓
     if recorded_cash is not None:
-        cash_balance = recorded_cash
+        cash_balance = recorded_cash + cash_balance
     if recorded_bank is not None:
-        bank_balance = recorded_bank
+        bank_balance = recorded_bank + bank_balance
     if recorded_paypay is not None:
-        paypay_balance = recorded_paypay
+        paypay_balance = recorded_paypay + paypay_balance
+    # ここまで修正 ↑
 
     chart_data = {
         'monthly': {
